@@ -6,7 +6,7 @@ class BusScheduleOptimization
     public static OutputBusSchedule OptimizationOrtools(BusSchedule busSchedule)
     {
         // Create the CP-SAT model
-        CpModel model = new();
+        CpModel model = new CpModel();
 
         int M = 100000;
         int[] carCount = new int[busSchedule.timeInterval.Length];
@@ -60,25 +60,46 @@ class BusScheduleOptimization
                 {
                     for (int m = 0; m < busSchedule.timeRunning[0].Length; m++)
                     {
+                        // situation 1: cannot transfer between two lines
                         if (busSchedule.timeRunning[i][m] == busSchedule.timeLimit || busSchedule.timeRunning[k][m] == busSchedule.timeLimit)
                         {
                             for (int j = 0; j < carCount[i]; j++)
                             {
                                 model.Add(y[i, j, k, l, m] == 0);
                             }
+                            continue;
                         }
+
 
                         for (int j = 0; j < carCount[i]; j++)
                         {
-                            if (j == 0)
+                            // situation 2: cannot transfer between two vehicles
+                            if (i != k)
                             {
-                                model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] >= -M * (1 - y[i, j, k, l, m]));
-                                model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] <= busSchedule.timeRunning[i][m] - 1 + M * (1 - y[i, j, k, l, m]));
-                            }
-                            else
-                            {
-                                model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] >= -M * (1 - y[i, j, k, l, m]));
-                                model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] <= busSchedule.timeInterval[i] - 1 + M * (1 - y[i, j, k, l, m]));
+                                if (j == 0)
+                                {
+                                    if (!((busSchedule.timeRunning[k][m] + busSchedule.timeTransfer[m] + l * busSchedule.timeInterval[k] > (j + 1) * busSchedule.timeInterval[i] - 1 + busSchedule.timeRunning[i][m]) || (busSchedule.timeRunning[k][m] + busSchedule.timeTransfer[m] + (l + 1) * busSchedule.timeInterval[k] - 1 + busSchedule.timeRunning[i][m] - 1 < j * busSchedule.timeInterval[i] + busSchedule.timeRunning[i][m])))
+                                    {
+                                        model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] >= -M * (1 - y[i, j, k, l, m]));
+                                        model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] <= busSchedule.timeRunning[i][m] - 1 + M * (1 - y[i, j, k, l, m]));
+                                    }
+                                    else
+                                    {
+                                        model.Add(y[i, j, k, l, m] == 0);
+                                    }
+                                }
+                                else
+                                {
+                                    if (!((busSchedule.timeRunning[k][m] + busSchedule.timeTransfer[m] + l * busSchedule.timeInterval[k] > (j + 1) * busSchedule.timeInterval[i] - 1 + busSchedule.timeRunning[i][m]) || (busSchedule.timeRunning[k][m] + busSchedule.timeTransfer[m] + (l + 1) * busSchedule.timeInterval[k] - 1 + busSchedule.timeInterval[i] - 1 < j * busSchedule.timeInterval[i] + busSchedule.timeRunning[i][m])))
+                                    {
+                                        model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] >= -M * (1 - y[i, j, k, l, m]));
+                                        model.Add(x[i, j] + busSchedule.timeRunning[i][m] - x[k, l] - busSchedule.timeRunning[k][m] - busSchedule.timeTransfer[m] <= busSchedule.timeInterval[i] - 1 + M * (1 - y[i, j, k, l, m]));
+                                    }
+                                    else
+                                    {
+                                        model.Add(y[i, j, k, l, m] == 0);
+                                    }
+                                }
                             }
                         }
                     }

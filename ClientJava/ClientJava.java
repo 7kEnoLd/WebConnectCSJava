@@ -31,7 +31,7 @@ public class ClientJava {
                               "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 16, 20, 32, 10000, 10000]," +
                               "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 10000, 10000]," +
                               "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 28, 10000, 10000, 10000, 10000, 10000]]," +
-                              "\"timeTransfer\": [4, 3, 2, 6, 0, 2, 7, 0, 6, 0, 1, 1, 0, 0, 1, 12, 11, 3], \"totalTimeInterval\": 240, \"timeLimit\": 10000,\"solverTimeLimit\": 20.0}";
+                              "\"timeTransfer\": [4, 3, 2, 6, 0, 2, 7, 0, 6, 0, 1, 1, 0, 0, 1, 12, 11, 3], \"totalTimeInterval\": 240, \"timeLimit\": 10000,\"solverTimeLimit\": 60.0}";
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
