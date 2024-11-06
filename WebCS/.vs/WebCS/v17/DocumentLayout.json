@@ -1,0 +1,75 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B44AAC19-60CE-4684-BE28-22413FCD51F8}|WebCS.csproj|d:\\project\\visualcode\\webconnectcsjava\\webcs\\solver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B44AAC19-60CE-4684-BE28-22413FCD51F8}|WebCS.csproj|solutionrelative:solver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B44AAC19-60CE-4684-BE28-22413FCD51F8}|WebCS.csproj|d:\\project\\visualcode\\webconnectcsjava\\webcs\\controllers\\mycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B44AAC19-60CE-4684-BE28-22413FCD51F8}|WebCS.csproj|solutionrelative:controllers\\mycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B44AAC19-60CE-4684-BE28-22413FCD51F8}|WebCS.csproj|d:\\project\\visualcode\\webconnectcsjava\\webcs\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B44AAC19-60CE-4684-BE28-22413FCD51F8}|WebCS.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Solver.cs",
+              "DocumentMoniker": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\Solver.cs",
+              "RelativeDocumentMoniker": "Solver.cs",
+              "ToolTip": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\Solver.cs",
+              "RelativeToolTip": "Solver.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-06T19:55:48.345Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-06T19:55:41.162Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MyController.cs",
+              "DocumentMoniker": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\Controllers\\MyController.cs",
+              "RelativeDocumentMoniker": "Controllers\\MyController.cs",
+              "ToolTip": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\Controllers\\MyController.cs",
+              "RelativeToolTip": "Controllers\\MyController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAA4AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-06T17:12:01.096Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

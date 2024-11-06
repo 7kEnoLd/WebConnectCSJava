@@ -7,11 +7,15 @@ public class ClientJava {
         try {
             // 设置URL，注意确保你的.NET API已经启动并运行在这个地址和端口
             @SuppressWarnings("deprecation")
-            URL url = new URL("http://localhost:5162/api/my/process");
+
+            // URL url = new URL("http://localhost:80/api/my/process");
+            URL url = new URL("http://129.211.26.167:80/api/my/process");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             // 设置请求方式为POST
             conn.setRequestMethod("POST");
+
+            // 设置请求头
             conn.setRequestProperty("Content-Type", "application/json; utf-8");
             conn.setRequestProperty("Accept", "application/json");
             conn.setDoOutput(true);

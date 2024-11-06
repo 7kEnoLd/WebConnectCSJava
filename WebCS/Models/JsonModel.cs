@@ -7,9 +7,6 @@ public class BusSchedule
     public int timeLimit { get; set; } // 站点不可通行的设置时间
     public double solverTimeLimit { get; set; } // 求解器时间限制
 
-    // 无参数构造函数
-    public BusSchedule() { }
-
     // 可选：带参数的构造函数
     public BusSchedule(int[] timeInterval, int[][] timeRunning, int[] timeTransfer, int totalTimeInterval, int timeLimit, double solverTimeLimit)
     {

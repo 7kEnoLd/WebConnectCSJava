@@ -13,6 +13,7 @@ public class MyController : ControllerBase
     }
 
     [HttpPost("process")]
+    // public IActionResult Process([FromBody] BusSchedule busSchedule)
     public IActionResult Process([FromBody] BusSchedule busSchedule)
     {
         // 使用日志记录接收到的 JSON 数据

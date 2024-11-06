@@ -42,3 +42,13 @@ D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\runtimes\osx-x64\n
 D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\runtimes\win-x64\native\google-ortools-native.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\obj\Debug\net8.0\WebCS.csproj.AssemblyReference.cache
 D:\Project\VisualCode\WebConnectCSJava\WebCS\obj\Debug\net8.0\WebCS.csproj.Up2Date
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.AspNetCore.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Extensions.Hosting.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Extensions.Logging.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Formatting.Compact.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Settings.Configuration.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Sinks.Console.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Sinks.Debug.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Debug\net8.0\Serilog.Sinks.File.dll

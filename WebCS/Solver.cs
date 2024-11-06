@@ -1,6 +1,6 @@
 using Google.OrTools.Sat;
 
-class BusScheduleOptimization
+public class BusScheduleOptimization
 {
     
     public static OutputBusSchedule OptimizationOrtools(BusSchedule busSchedule)
