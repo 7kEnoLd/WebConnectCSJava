@@ -1,47 +1,101 @@
 import java.io.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 public class ClientJava {
     public static void main(String[] args) {
         try {
-            // 设置URL，注意确保你的.NET API已经启动并运行在这个地址和端口
+            // set up the connection
             @SuppressWarnings("deprecation")
-
-            // URL url = new URL("http://localhost:80/api/my/process");
+            // URL url = new URL("http://localhost:5162/api/my/process");
             URL url = new URL("http://129.211.26.167:80/api/my/process");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            // 设置请求方式为POST
             conn.setRequestMethod("POST");
-
-            // 设置请求头
             conn.setRequestProperty("Content-Type", "application/json; utf-8");
             conn.setRequestProperty("Accept", "application/json");
             conn.setDoOutput(true);
 
-            // 发送JSON数据，确保与.NET的JsonModel匹配
-            // 小算例
+            // small example
             // String jsonInputString = "{\"timeInterval\": [10, 10, 10, 20], \"timeRunning\": [[5, 12, 10000, 10000], [10000, 10000, 10, 4], [6, 10000, 10000, 9], [10000, 5, 13, 10000]], \"timeTransfer\": [0, 0, 0, 0], \"totalTimeInterval\": 30, \"timeLimit\": 10000,\"solverTimeLimit\": 20}"; 
+            // big example
+            /* jsonInputString JSON字符串
+             * 字段1：timeInterval，发车间隔数组，一个整数数组，取值范围为(0,最大时间范围)，表示每条线路的发车间隔，例如第一个数据10表示第一条线路的发车间隔为10分钟
+             * 字段2：timeRunning，运行时间数组，一个二维整数数组，取值范围为(0,最大时间范围)U(无法联通参数)，表示每条线路的运行到某个换乘站的运行时间，例如第一个数据10000表示第一条线路无法到达第一个换乘站，第三个数据19表示第一条线路到达第三个换乘站的时间为19分钟
+             * 字段3：timeTransfer，换乘时间数组，一个整数数组，取值范围为【0,最大时间范围)，表示每个换乘站的同站换乘时间，例如第一个数据4表示第一个换乘站的同站换乘时间为4分钟
+             * 字段4：totalTimeInterval，最大时间范围，一个整数，取值范围大于0，表示分钟数，是问题研究的公交车开行时间范围，例如240表示公交车开行时间范围为240分钟
+             * 字段5：timeLimit，无法联通参数，一个整数，取值范围大于0，这里固定为一个大数10000，用于条件判断，确定网络中线路无法到达的换乘站
+             * 字段6：solverTimeLimit，求解器时间限制，一个浮点数，取值范围大于0，表示求解器的时间限制，单位为秒
+             * 字段7：p，第2个模型的结果，指示最大的换乘乘客系数的换乘值，需要代入第3，4个模型中求解，在大算例中为3756
+             * 字段8：modelStatus，模型状态，一个整数，取值范围为0,1,2。0表示最优解，1表示因时间达限获取的局部最优解，2表示求解器时间到达限制也无可行解
+             * 字段9：transferPassengerFlow，换乘乘客系数，一个三维交错的浮点数数组，用于表示第三个元素代表的站点的第一个元素指示的线路换乘第二元素代表的线路的乘客系数，例如第一个数据0.5表示第一个站点的第一条线路换乘第一条线路的乘客系数为0.5
+             */
+
             // 大算例
-            String jsonInputString = "{\"timeInterval\": [10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], \"timeRunning\": [[10000, 10000, 19, 24, 10000, 32, 10000, 36, 10000, 45, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]," +
-                              "[10000, 10000, 42, 37, 10000, 29, 10000, 25, 23, 10000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]," +
-                              "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 18, 42, 58, 10000, 10000, 10000, 10000, 51]," +
-                              "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 90, 72, 10000, 14, 26, 22, 10000, 49, 10000]," +
-                              "[10000, 17, 22, 10000, 34, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]," +
-                              "[37, 17, 26, 31, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]," +
-                              "[10000, 10000, 10000, 10000, 61, 53, 51, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]," +
-                              "[10000, 10000, 10000, 10000, 10000, 10000, 55, 10000, 48, 10000, 21, 10000, 10000, 10000, 10000, 10000, 10000, 10000]," +
-                              "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 16, 20, 32, 10000, 10000]," +
-                              "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 10000, 10000]," +
-                              "[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 28, 10000, 10000, 10000, 10000, 10000]]," +
-                              "\"timeTransfer\": [4, 3, 2, 6, 0, 2, 7, 0, 6, 0, 1, 1, 0, 0, 1, 12, 11, 3], \"totalTimeInterval\": 240, \"timeLimit\": 10000,\"solverTimeLimit\": 60.0}";
+            int[] timeInterval = {10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24}; // 发车时间间隔
+            int[][] timeRunning = {{10000, 10000, 19, 24, 10000, 32, 10000, 36, 10000, 45, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000},
+                                {10000, 10000, 42, 37, 10000, 29, 10000, 25, 23, 10000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000},
+                                {10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 18, 42, 58, 10000, 10000, 10000, 10000, 51},
+                                {10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 90, 72, 10000, 14, 26, 22, 10000, 49, 10000},
+                                {10000, 17, 22, 10000, 34, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000},
+                                {37, 17, 26, 31, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000},
+                                {10000, 10000, 10000, 10000, 61, 53, 51, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000},
+                                {10000, 10000, 10000, 10000, 10000, 10000, 55, 10000, 48, 10000, 21, 10000, 10000, 10000, 10000, 10000, 10000, 10000},
+                                {10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 16, 20, 32, 10000, 10000},
+                                {10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 10000, 10000},
+                                {10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 28, 10000, 10000, 10000, 10000, 10000}};
+            int[] timeTransfer = {4, 3, 2, 6, 0, 2, 7, 0, 6, 0, 1, 1, 0, 0, 1, 12, 11, 3}; // 换乘时间
+            int totalTimeInterval = 240;
+            double[][][] transferPassengerFlow = new double[timeInterval.length][timeInterval.length][timeRunning[0].length];
+            transferPassengerFlow[5][4][0] = 1.2;//S1 B2-B1
+            transferPassengerFlow[5][4][1] = 0.4;//S2 B2-B1
+            transferPassengerFlow[4][5][1] = 0.4;//S2 B1-B2
+            transferPassengerFlow[5][4][2] = 0.4;//S3 B2-B1
+            transferPassengerFlow[4][5][2] = 0.4;//S3 B1-B2
+            transferPassengerFlow[0][4][2] = 0.4;//S3 A1-B1
+            transferPassengerFlow[0][5][2] = 0.4;//S3 A1-B2
+            transferPassengerFlow[4][0][2] = 0.8;//S3 B1-A1
+            transferPassengerFlow[4][1][2] = 0.8;//S3 B1-A2
+            transferPassengerFlow[5][0][2] = 0.8;//S3 B2-A1
+            transferPassengerFlow[5][1][2] = 0.8;//S3 B2-A2
+            transferPassengerFlow[1][5][3] = 0.8;//S4 A2-B2
+            transferPassengerFlow[6][4][4] = 0.4;//S5 B3-B1
+            transferPassengerFlow[6][0][5] = 0.4;//S6 B3-A1
+            transferPassengerFlow[6][1][5] = 0.8;//S6 B3-A2
+            transferPassengerFlow[7][6][6] = 0.4;//S7 B4-B3
+            transferPassengerFlow[1][0][7] = 6;//S8 A2-A1
+            transferPassengerFlow[1][7][8] = 0.4;//S9 A2-B4
+            transferPassengerFlow[0][2][9] = 12;//S10 A1-A3
+            transferPassengerFlow[7][2][10] = 0.4;//S11 B4-A3
+            transferPassengerFlow[3][7][10] = 1;//S11 A4-B4
+            transferPassengerFlow[2][10][11] = 0.4;//S12 A3-B7
+            transferPassengerFlow[10][2][11] = 0.8;//S12 B7-A3
+            transferPassengerFlow[10][9][12] = 1.2;//S13 B7-B6
+            transferPassengerFlow[10][3][12] = 1.6; //S13 B7-A4
+            transferPassengerFlow[2][9][12] = 0.8;//S13 A3-B6
+            transferPassengerFlow[8][3][13] = 0.4;//S14 B5-A4
+            transferPassengerFlow[3][8][14] = 1.2;//S15 A4-B5
+            transferPassengerFlow[8][9][15] = 0.4;//S16 B5-B6
+            transferPassengerFlow[3][10][16] = 2.4;//S17 A4-B7
+            transferPassengerFlow[2][8][17] = 0.8;//S18 A3-B5
+            int timeLimit = 10000;
+            double solverTimeLimit = 60.0;
+            double p = 3756; // fixed
+            int modelFlag = 2; // infeasible
+
+            Schedule busSchedule = new Schedule(timeInterval, timeRunning, timeTransfer, totalTimeInterval, transferPassengerFlow, timeLimit, solverTimeLimit, p, modelFlag);
+
+            String jsonInputString = toJson(busSchedule);
+
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 
-            // 读取响应
+            // read the response
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
@@ -56,5 +110,70 @@ public class ClientJava {
             e.printStackTrace();
         }
     }
-}
 
+    public static String toJson(Object obj) {
+        if (obj == null) {
+            return "null";
+        }
+        
+        StringBuilder jsonBuilder = new StringBuilder();
+        
+        if (obj.getClass().isArray()) {
+            // 处理数组
+            jsonBuilder.append("[");
+            int length = Array.getLength(obj);
+            for (int i = 0; i < length; i++) {
+                Object element = Array.get(obj, i);
+                if (i > 0) {
+                    jsonBuilder.append(", ");
+                }
+                jsonBuilder.append(toJson(element)); // 递归处理数组中的元素
+            }
+            jsonBuilder.append("]");
+        } else if (obj instanceof Collection) {
+            // 处理集合
+            jsonBuilder.append("[");
+            boolean first = true;
+            for (Object element : (Collection<?>) obj) {
+                if (!first) {
+                    jsonBuilder.append(", ");
+                }
+                jsonBuilder.append(toJson(element)); // 递归处理集合中的元素
+                first = false;
+            }
+            jsonBuilder.append("]");
+        } else if (obj instanceof String) {
+            // 处理字符串
+            jsonBuilder.append("\"").append(obj).append("\"");
+        } else if (obj instanceof Number || obj instanceof Boolean) {
+            // 处理数字和布尔值
+            jsonBuilder.append(obj);
+        } else {
+            // 处理对象
+            jsonBuilder.append("{");
+            
+            Field[] fields = obj.getClass().getDeclaredFields();
+            boolean first = true;
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    String fieldName = field.getName();
+                    Object fieldValue = field.get(obj);
+                    
+                    if (!first) {
+                        jsonBuilder.append(", ");
+                    }
+                    jsonBuilder.append("\"").append(fieldName).append("\": ");
+                    jsonBuilder.append(toJson(fieldValue)); // 递归处理字段值
+                    first = false;
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            jsonBuilder.append("}");
+        }
+        
+        return jsonBuilder.toString();
+    }
+}
