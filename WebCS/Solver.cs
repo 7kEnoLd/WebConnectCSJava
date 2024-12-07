@@ -38,7 +38,12 @@ public class BusScheduleOptimization
         {
             for (int j = 0; j < carCount[i]; j++)
             {
-                if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
+                if (j == 0 && carCount[i] != 1 && (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i] > 0)
+                {
+                    // The first car of each line must start at time 0 and end at time with last car
+                    x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i], $"x{i}_{j}");
+                }
+                else if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
                 {
                     x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], busSchedule.TotalTimeInterval, $"x{i}_{j}");
                 }
@@ -207,7 +212,12 @@ public class BusScheduleOptimization
         {
             for (int j = 0; j < carCount[i]; j++)
             {
-                if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
+                if (j == 0 && carCount[i] != 1 && (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i] > 0)
+                {
+                    // The first car of each line must start at time 0 and end at time with last car
+                    x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i], $"x{i}_{j}");
+                }
+                else if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
                 {
                     x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], busSchedule.TotalTimeInterval, $"x{i}_{j}");
                 }
@@ -381,7 +391,12 @@ public class BusScheduleOptimization
         {
             for (int j = 0; j < carCount[i]; j++)
             {
-                if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
+                if (j == 0 && carCount[i] != 1 && (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i] > 0)
+                {
+                    // The first car of each line must start at time 0 and end at time with last car
+                    x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i], $"x{i}_{j}");
+                }
+                else if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
                 {
                     x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], busSchedule.TotalTimeInterval, $"x{i}_{j}");
                 }
@@ -591,7 +606,12 @@ public class BusScheduleOptimization
         {
             for (int j = 0; j < carCount[i]; j++)
             {
-                if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
+                if (j == 0 && carCount[i] != 1 && (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i] > 0)
+                {
+                    // The first car of each line must start at time 0 and end at time with last car
+                    x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], (j + 1) * busSchedule.TimeInterval[i] - busSchedule.LastCar[i], $"x{i}_{j}");
+                }
+                else if ((j + 1) * busSchedule.TimeInterval[i] >= busSchedule.TotalTimeInterval)
                 {
                     x[i, j] = model.NewIntVar(j * busSchedule.TimeInterval[i], busSchedule.TotalTimeInterval, $"x{i}_{j}");
                 }

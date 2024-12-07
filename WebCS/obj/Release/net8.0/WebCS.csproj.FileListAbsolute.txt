@@ -52,3 +52,4 @@ D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Release\net8.0\Serilog.Settings
 D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Release\net8.0\Serilog.Sinks.Console.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Release\net8.0\Serilog.Sinks.Debug.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Release\net8.0\Serilog.Sinks.File.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\bin\Release\net8.0\Newtonsoft.Json.dll

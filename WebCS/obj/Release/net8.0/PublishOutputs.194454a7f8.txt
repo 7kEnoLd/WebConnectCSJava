@@ -8,6 +8,7 @@ D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\WebCS.pdb
 D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Google.OrTools.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Google.Protobuf.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Microsoft.Extensions.DependencyModel.dll
+D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Newtonsoft.Json.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Serilog.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Serilog.AspNetCore.dll
 D:\Project\VisualCode\WebConnectCSJava\WebCS\publish\Serilog.Extensions.Hosting.dll

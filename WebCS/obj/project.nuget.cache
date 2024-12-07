@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "lCX9wlQ1PKZKrg2WtKpo1PbK27rXsXaFb0bKCZbZCIUinnYfJLWGnhzQ4elcYqVgVE7Q9EhcMJagMDK42bE3SQ==",
+  "dgSpecHash": "RtOjgc5E2gPDS82CfXp+bBHt4xQIDMCxeduhNljK+3/iVmsiX4aRi6zgcdV5vDmU7Sxe8AAvva3rdaAwllEHbQ==",
   "success": true,
   "projectFilePath": "D:\\Project\\VisualCode\\WebConnectCSJava\\WebCS\\WebCS.csproj",
   "expectedPackageFiles": [
@@ -23,6 +23,7 @@
     "C:\\Users\\hapso\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\hapso\\.nuget\\packages\\microsoft.extensions.options\\8.0.0\\microsoft.extensions.options.8.0.0.nupkg.sha512",
     "C:\\Users\\hapso\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\hapso\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\hapso\\.nuget\\packages\\serilog\\4.1.0\\serilog.4.1.0.nupkg.sha512",
     "C:\\Users\\hapso\\.nuget\\packages\\serilog.aspnetcore\\8.0.3\\serilog.aspnetcore.8.0.3.nupkg.sha512",
     "C:\\Users\\hapso\\.nuget\\packages\\serilog.extensions.hosting\\8.0.0\\serilog.extensions.hosting.8.0.0.nupkg.sha512",
