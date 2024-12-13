@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -9,8 +10,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public class ClientJava {
@@ -73,8 +76,25 @@ public class ClientJava {
                 }
                 System.out.println("Response from .NET API: ");
                 System.out.println(response2.toString());
-            }
 
+                // 替换转义字符为实际换行符
+                String formattedJson = response2.toString().replace("\\r\\n", System.lineSeparator());
+
+                // 获取当前北京时间并格式化为 yyyy-MM-dd_HH-mm-ss
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+                String currentTime = sdf.format(new Date());
+
+                // 定义输出文件名
+                String filePath = "output_" + currentTime + ".txt";
+
+                // 写入文件
+                try (FileWriter writer = new FileWriter(filePath)) {
+                    writer.write(formattedJson);
+                    System.out.println("JSON 已成功写入文件: " + filePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (IOException | URISyntaxException e) {
         }
     }
@@ -141,7 +161,7 @@ public class ClientJava {
             jsonBuilder.append("}");
         }
 
-            // 在整个 JSON 字符串外部添加双引号
+        // 在整个 JSON 字符串外部添加双引号
         return jsonBuilder.toString();
     }
 

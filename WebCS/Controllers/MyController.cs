@@ -86,10 +86,18 @@ public class MyController : ControllerBase
             outputData.outputBusSchedules.Add(result);
         }
 
-         string json = JsonConvert.SerializeObject(outputData, Formatting.Indented);       
+        OutputJson outputJson = new(outputData, totalBusScheduleInstance, receiveDataInstance);
 
-        // 处理逻辑...
-        return Ok(json);
+        if (filePathInstance.ReturnCode == 0)
+        {
+            string json = JsonConvert.SerializeObject(outputData, Formatting.Indented);       
+            return Ok(json);
+        }
+        else
+        {
+            string json = JsonConvert.SerializeObject(outputJson, Formatting.Indented);
+            return Ok(json);
+        }
     }
 
     private static (FilePath, ReceiveData, TotalBusSchedule) ReadJson(string filePath)

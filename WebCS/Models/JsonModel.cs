@@ -15,21 +15,25 @@ public class ReceiveData
     public ReceiveData()
     {
         Status = "Success";
-        Remark = "The input data structure is as follows: Interval: int[][] as json format, only need to enter the departure intervals of each line in each time period. The time periods are divided into morning peak, off-peak 1, evening peak and off-peak 2";
-        LineName = [ "A1-智轨T1主线-高铁西站至智轨产业园站", "A2-智轨T1支线-成都工业学院站至高铁西站", "A3-智轨T4主线-智轨产业园站至南溪区政府", "A4-智轨T4支线-南溪区政府至智轨产业园站",
-                                       "B1-9路-翠屏山至盐坪坝", "B2-15路-丽雅大院至翠屏山(市妇幼保健院)", "B3-24路-东山路至市政广场(云上装饰)", "B4-32路-纵一路口至宜宾七中",
-                                       "B5-南溪9路-新中医院西门至东门", "B6-南溪10路-客运中心至月亮湾游客中心", "B7-南溪12路-祥和小区至客运中心" ];
-        Interval = [[10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29], [10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29]];
+        Remark = "处理的输入数据格式是一个int[][]，表示每条线路在每个时段的发车间隔，4*11的大小，其中11代表线路编号按照下面的LineName属性组织，4代表时段数量，第一个时段是早高峰,6:30-10:30，后面时段依次为10:30-17:00，17:00-20:30，20:30-24:00";
+        LineName = [ "A1u-智轨T1主线-智轨产业园站至高铁西站", "A2u-智轨T1支线-高铁西站至成都工业学院站", "A3u-智轨T4主线-南溪区政府至智轨产业园站", "A4u-智轨T4支线-智轨产业园站至南溪区政府",
+                    "A1o-智轨T1主线-高铁西站至智轨产业园站", "A2o-智轨T1支线-成都工业学院站至高铁西站", "A3o-智轨T4主线-智轨产业园站至南溪区政府", "A4o-智轨T4支线-南溪区政府至智轨产业园站",
+                    "B1-9路-翠屏山至盐坪坝", "B2-15路-丽雅大院至翠屏山(市妇幼保健院)", "B3-24路-东山路至市政广场(云上装饰)", "B4-32路-纵一路口至宜宾七中",
+                    "B5-南溪9路-新中医院西门至东门", "B6-南溪10路-客运中心至月亮湾游客中心", "B7-南溪12路-祥和小区至客运中心" ];
+        Interval = [[10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29], [10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29]];
     }
 }
 
 public class FilePath
 {
     public string Path { get; set; } // 文件路径
+    public int ReturnCode { get; set; } // 返回码, 0表示默认全信息返回(包括公交首班车和智轨时刻表)，1表示只返回首班车时间
 
     public FilePath()
     {
         Path = "C:\\Users\\Public\\Downloads\\data.json";
+
+        ReturnCode = 0;
     }
 }
 
@@ -44,6 +48,9 @@ public class TotalBusSchedule
     public double SolverTimeLimit { get; set; } // 求解器时间限制
     public DateTime LastModified { get; set; } // 最后修改时间
     public int ModelFlag { get; set; } // 模型标志
+    public double StopTime { get; set; } // 停车时间
+    public int[][] AllStationRunning { get; set; } // 所有站点的行驶时间
+    public string[][] AllStationName { get; set; } // 所有站点的名称
 
     public void GetTime(string filePath)
     {
@@ -64,18 +71,24 @@ public class TotalBusSchedule
 
     public TotalBusSchedule()
     {
-        TimeInteval = [[10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29], [10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29]];
-        TimeRunning = [[10000, 10000, 19, 24, 10000, 32, 10000, 36, 10000, 45, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
-                             [10000, 10000, 42, 37, 10000, 29, 10000, 25, 23, 10000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
-                             [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 18, 42, 58, 10000, 10000, 10000, 10000, 51],
-                             [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 90, 72, 10000, 14, 26, 22, 10000, 49, 10000],
-                             [10000, 17, 22, 10000, 34, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
-                             [37, 17, 26, 31, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
-                             [10000, 10000, 10000, 10000, 61, 53, 51, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
-                             [10000, 10000, 10000, 10000, 10000, 10000, 55, 10000, 48, 10000, 21, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
-                             [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 16, 20, 32, 10000, 10000],
-                             [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 10000, 10000],
-                             [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 28, 10000, 10000, 10000, 10000, 10000]];
+        TimeInteval = [[10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29], [10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29]];
+        TimeRunning = [[10000, 10000, 45, 26, 10000, 21, 10000, 13, 10000, 9, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 19, 24, 10000, 32, 10000, 36, 38, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 54, 30, 14, 10000, 10000, 10000, 10000, 21],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 0, 18, 10000, 76, 64, 68, 10000, 41, 10000],
+
+                           [10000, 10000, 19, 24, 10000, 32, 10000, 36, 10000, 45, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 42, 37, 10000, 29, 10000, 25, 23, 10000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 18, 42, 58, 10000, 10000, 10000, 10000, 51],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 90, 72, 10000, 14, 26, 22, 10000, 49, 10000],
+
+                           [10000, 17, 22, 10000, 34, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [37, 17, 26, 31, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 61, 53, 51, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 55, 10000, 48, 10000, 21, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 16, 20, 32, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 10000, 10000],
+                           [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 20, 28, 10000, 10000, 10000, 10000, 10000]];
         TimeTransfer = [4, 3, 2, 6, 0, 2, 7, 0, 6, 0, 1, 1, 0, 0, 1, 12, 11, 3];
         TotalTimeInterval = [240, 390, 210, 210]; // 6:30-10:30, 10:30-17:00, 17:00-20:30, 20:30-24:00
         TransferPassengerFlow = new double[TotalTimeInterval.Length][][][];
@@ -96,37 +109,63 @@ public class TotalBusSchedule
                         }
                     }
                 }
-                TransferPassengerFlow[i][5][4][0] = 1.2;   //S1  B2-B1
-                TransferPassengerFlow[i][5][4][1] = 0.4;   //S2  B2-B1
-                TransferPassengerFlow[i][4][5][1] = 0.4;   //S2  B1-B2
-                TransferPassengerFlow[i][5][4][2] = 0.4;   //S3  B2-B1
-                TransferPassengerFlow[i][4][5][2] = 0.4;   //S3  B1-B2
-                TransferPassengerFlow[i][0][4][2] = 0.4;   //S3  A1-B1
-                TransferPassengerFlow[i][0][5][2] = 0.4;   //S3  A1-B2
-                TransferPassengerFlow[i][4][0][2] = 0.8;   //S3  B1-A1
-                TransferPassengerFlow[i][4][1][2] = 0.8;   //S3  B1-A2
-                TransferPassengerFlow[i][5][0][2] = 0.8;   //S3  B2-A1
-                TransferPassengerFlow[i][5][1][2] = 0.8;   //S3  B2-A2
-                TransferPassengerFlow[i][1][5][3] = 0.8;   //S4  A2-B2
-                TransferPassengerFlow[i][6][4][4] = 0.4;   //S5  B3-B1
-                TransferPassengerFlow[i][6][0][5] = 0.4;   //S6  B3-A1
-                TransferPassengerFlow[i][6][1][5] = 0.8;   //S6  B3-A2
-                TransferPassengerFlow[i][7][6][6] = 0.4;   //S7  B4-B3
-                TransferPassengerFlow[i][1][0][7] = 6;     //S8  A2-A1
-                TransferPassengerFlow[i][1][7][8] = 0.4;   //S9  A2-B4
-                TransferPassengerFlow[i][0][2][9] = 12;    //S10 A1-A3
-                TransferPassengerFlow[i][7][2][10] = 0.4;  //S11 B4-A3
-                TransferPassengerFlow[i][3][7][10] = 1;    //S11 A4-B4
-                TransferPassengerFlow[i][2][10][11] = 0.4; //S12 A3-B7
-                TransferPassengerFlow[i][10][2][11] = 0.8; //S12 B7-A3
-                TransferPassengerFlow[i][10][9][12] = 1.2; //S13 B7-B6
-                TransferPassengerFlow[i][10][3][12] = 1.6; //S13 B7-A4
-                TransferPassengerFlow[i][2][9][12] = 0.8;  //S13 A3-B6
-                TransferPassengerFlow[i][8][3][13] = 0.4;  //S14 B5-A4
-                TransferPassengerFlow[i][3][8][14] = 1.2;  //S15 A4-B5
-                TransferPassengerFlow[i][8][9][15] = 0.4;  //S16 B5-B6
-                TransferPassengerFlow[i][3][10][16] = 2.4; //S17 A4-B7
-                TransferPassengerFlow[i][2][8][17] = 0.8;  //S18 A3-B5
+                // 新的方向
+                TransferPassengerFlow[i][0][8][2] = 0.4;   //S3  A1u-B1
+                TransferPassengerFlow[i][0][9][2] = 0.4;   //S3  A1u-B2
+                TransferPassengerFlow[i][8][0][2] = 0.8;   //S3  B1-A1u
+                TransferPassengerFlow[i][8][1][2] = 0.8;   //S3  B1-A2u
+                TransferPassengerFlow[i][9][0][2] = 0.8;   //S3  B2-A1u
+                TransferPassengerFlow[i][9][1][2] = 0.8;   //S3  B2-A2u
+                TransferPassengerFlow[i][1][9][3] = 0.8;   //S4  A2u-B2
+                TransferPassengerFlow[i][10][0][5] = 0.4;  //S6  B3-A1u
+                TransferPassengerFlow[i][10][1][5] = 0.8;  //S6  B3-A2u
+                TransferPassengerFlow[i][5][0][7] = 6;     //S8  A2o-A1u
+                TransferPassengerFlow[i][1][11][8] = 0.4;  //S9  A2u-B4
+                TransferPassengerFlow[i][4][2][9] = 12;    //S10 A1o-A3u
+                TransferPassengerFlow[i][11][2][10] = 0.4; //S11 B4-A3u
+                TransferPassengerFlow[i][3][11][10] = 1;   //S11 A4u-B4
+                TransferPassengerFlow[i][2][14][11] = 0.4; //S12 A3u-B7
+                TransferPassengerFlow[i][14][2][11] = 0.8; //S12 B7-A3u
+                TransferPassengerFlow[i][14][3][12] = 1.6; //S13 B7-A4u
+                TransferPassengerFlow[i][2][13][12] = 0.8; //S13 A3u-B6
+                TransferPassengerFlow[i][12][3][13] = 0.4; //S14 B5-A4u
+                TransferPassengerFlow[i][3][12][14] = 1.2; //S15 A4u-B5
+                TransferPassengerFlow[i][3][14][16] = 2.4; //S17 A4u-B7
+                TransferPassengerFlow[i][2][12][17] = 0.8; //S18 A3u-B5
+
+
+                // 原方向
+                TransferPassengerFlow[i][9][8][0] = 1.2;   //S1  B2-B1
+                TransferPassengerFlow[i][9][8][1] = 0.4;   //S2  B2-B1
+                TransferPassengerFlow[i][8][9][1] = 0.4;   //S2  B1-B2
+                TransferPassengerFlow[i][9][8][2] = 0.4;   //S3  B2-B1
+                TransferPassengerFlow[i][8][9][2] = 0.4;   //S3  B1-B2
+                TransferPassengerFlow[i][4][8][2] = 0.4;   //S3  A1o-B1
+                TransferPassengerFlow[i][4][9][2] = 0.4;   //S3  A1o-B2
+                TransferPassengerFlow[i][8][4][2] = 0.8;   //S3  B1-A1o
+                TransferPassengerFlow[i][8][5][2] = 0.8;   //S3  B1-A2o
+                TransferPassengerFlow[i][9][4][2] = 0.8;   //S3  B2-A1o
+                TransferPassengerFlow[i][9][5][2] = 0.8;   //S3  B2-A2o
+                TransferPassengerFlow[i][6][9][3] = 0.8;   //S4  A2o-B2
+                TransferPassengerFlow[i][10][8][4] = 0.4;  //S5  B3-B1
+                TransferPassengerFlow[i][10][4][5] = 0.4;  //S6  B3-A1o
+                TransferPassengerFlow[i][10][5][5] = 0.8;  //S6  B3-A2o
+                TransferPassengerFlow[i][11][10][6] = 0.4; //S7  B4-B3
+                TransferPassengerFlow[i][1][4][7] = 6;     //S8  A2u-A1o
+                TransferPassengerFlow[i][5][11][8] = 0.4;  //S9  A2o-B4
+                TransferPassengerFlow[i][0][6][9] = 12;    //S10 A1u-A3o
+                TransferPassengerFlow[i][11][6][10] = 0.4; //S11 B4-A3o
+                TransferPassengerFlow[i][7][11][10] = 1;   //S11 A4o-B4
+                TransferPassengerFlow[i][6][14][11] = 0.4; //S12 A3o-B7
+                TransferPassengerFlow[i][14][6][11] = 0.8; //S12 B7-A3o
+                TransferPassengerFlow[i][14][13][12] = 1.2;//S13 B7-B6
+                TransferPassengerFlow[i][14][7][12] = 1.6; //S13 B7-A4o
+                TransferPassengerFlow[i][6][13][12] = 0.8; //S13 A3o-B6
+                TransferPassengerFlow[i][12][7][13] = 0.4; //S14 B5-A4o
+                TransferPassengerFlow[i][7][12][14] = 1.2; //S15 A4o-B5
+                TransferPassengerFlow[i][12][13][15] = 0.4;//S16 B5-B6
+                TransferPassengerFlow[i][7][14][16] = 2.4; //S17 A4o-B7
+                TransferPassengerFlow[i][6][12][17] = 0.8; //S18 A3o-B5
             }
             else if (i == 1)
             {
@@ -200,8 +239,29 @@ public class TotalBusSchedule
         }
 
         TimeLimit = 10000;
-        SolverTimeLimit = 600.0;
-        ModelFlag = 1;
+        SolverTimeLimit = 60.0;
+        ModelFlag = 1; // 默认对应模型1
+
+        StopTime = 0.5;
+        AllStationRunning = new int[4][]; // 所有站点的行驶时间
+
+        AllStationRunning[0] = [2, 2, 2, 3, 2, 2, 3, 3, 2, 5, 9, 6, 4];
+        AllStationRunning[1] = [4, 6, 9, 5, 2, 3, 3, 2, 2, 2, 7, 4, 8, 4];
+        AllStationRunning[2] = [14, 2, 2, 3, 4, 5, 3, 5, 7, 9, 6, 6, 6];
+        AllStationRunning[3] = [6, 6, 6, 9, 7, 3, 4, 6, 5, 7, 5, 4, 5, 3, 14];
+
+        //AllStationRunning[4] = [4, 6, 9, 5, 2, 3, 3, 2, 2, 3, 2, 2, 2];
+        //AllStationRunning[5] = [4, 8, 4, 7, 2, 2, 2, 3, 3, 2, 5, 9, 6, 4];
+        //AllStationRunning[6] = [6, 6, 6, 9, 7, 5, 3, 5, 4, 3, 2, 2, 14];
+        //AllStationRunning[7] = [14, 3, 5, 4, 5, 7, 5, 6, 4, 3, 7, 9, 6, 6, 6];
+
+        AllStationName = new string[4][];
+
+        AllStationName[0] = ["高铁宜宾西站", "天璇路站", "大湾路站", "时代广场站", "新世纪广场站", "酒都路站", "长江桥南站", "学堂路站", "二医院林港站", "长翠路站", "紫金城站", "西南交通大学站", "牌坊路站", "智轨产业园站"];
+        AllStationName[1] = ["成都工业学院站", "成都理工大学站", "成都外国语学院站", "四川轻化工大学站", "新楼路站", "长翠路站", "二医院临港站", "学堂路站", "长江桥南站", "酒都路站", "新世纪广场站", "时代广场站", "大湾路站", "天璇路站", "高铁宜宾西站"];
+        AllStationName[2] = ["智轨产业园站", "临港车辆段站", "磅礴路站", "汽车产业园站", "石鼓快速路站", "南溪经开区站", "罗龙站", "朝阳洞站", "高职院站", "仙源长江大桥站", "南溪古街站", "钻石城站", "客运中心站", "南溪区政府站"];
+        AllStationName[3] = ["南溪区政府站", "客运中心站", "钻石城站", "文体中心站", "未来之门站", "漂海楼站", "长江第一湾站", "欢乐田园站", "三块石站", "医用基地", "启航路站", "石鼓快速路站", "汽车产业园站", "磅礴路站", "临港车辆段站", "智轨产业园站"];
+
     }
 }
 
@@ -274,5 +334,174 @@ public class OutputData
     public OutputData()
     {
         outputBusSchedules = [];
+    }
+}
+
+public class OutputJson
+{
+    public int[] Status { get; set; } // 各个时段数据状态
+    public double[] ObjectiveValue { get; set; } // 目标函数值
+    public string[] BusLineName { get; set; } // 公交：对应的线路名称
+    public int[][] BusFirstCar { get; set; } // 公交：第一辆车的发车时间
+    public string[][] RailStationName { get; set; } // 智轨：线路站点名称
+    public double[][][] RailTimetable { get; set; } // 智轨：时刻表
+
+    public OutputJson(OutputData outputData, TotalBusSchedule totalBusSchedule, ReceiveData receiveData)
+    {
+        // 求解状态和目标函数值
+        Status = new int[outputData.outputBusSchedules.Count];
+        ObjectiveValue = new double[outputData.outputBusSchedules.Count];
+        for (int i = 0; i < outputData.outputBusSchedules.Count; i++)
+        {
+            Status[i] = outputData.outputBusSchedules[i].ModelStatus;
+            ObjectiveValue[i] = outputData.outputBusSchedules[i].ObjectiveValue;
+        }
+
+        // 公交线路名称及始发站时间
+        BusLineName = new string[totalBusSchedule.TimeInteval[0].Length - totalBusSchedule.AllStationName.Length * 2]; // 要计算上下行两个方向
+        for (int i = 0; i < BusLineName.Length; i++)
+        {
+            BusLineName[i] = receiveData.LineName[totalBusSchedule.AllStationName.Length * 2 + i];
+        }
+        BusFirstCar = new int[BusLineName.Length][];
+        for (int i = 0; i < BusLineName.Length; i++)
+        {
+            int[] carCount = new int[totalBusSchedule.TotalTimeInterval.Length];
+            for (int j = 0; j < totalBusSchedule.TotalTimeInterval.Length; j++)
+            {
+                carCount[j] = (int)Math.Ceiling((double)totalBusSchedule.TotalTimeInterval[j] / (double)totalBusSchedule.TimeInteval[j][i + totalBusSchedule.AllStationName.Length * 2]);
+            }
+            int count = carCount.Sum();
+            int index = 0;
+            int time = 0;
+            BusFirstCar[i] = new int[count];
+            for (int j = 0; j < carCount.Length; j++)
+            {
+                for (int k = 0; k < carCount[j]; k++)
+                {
+                    BusFirstCar[i][index] = time + outputData.outputBusSchedules[j].FirstCar[i] + k * totalBusSchedule.TimeInteval[j][i + totalBusSchedule.AllStationName.Length * 2];
+                    index++;
+                }
+                time += totalBusSchedule.TotalTimeInterval[j];
+            }
+        }
+
+        // 智轨线路站点名称及时刻表
+        RailStationName = new string[totalBusSchedule.AllStationName.Length * 2][];
+        RailTimetable = new double[totalBusSchedule.AllStationName.Length * 2][][];
+        for (int i = 0; i < totalBusSchedule.AllStationName.Length * 2; i++)
+        {
+            // 第一个方向，和对应AllStationName站点顺序相反
+            if (i < totalBusSchedule.AllStationName.Length)
+            {
+                RailStationName[i] = new string[totalBusSchedule.AllStationName[i].Length];
+                for (int j = 0; j < totalBusSchedule.AllStationName[i].Length; j++)
+                {
+                    int idx = totalBusSchedule.AllStationName[i].Length - 1 - j;
+                    RailStationName[i][j] = totalBusSchedule.AllStationName[i][idx];
+                }
+
+                // 计算TimeTable的长度
+                int[] carCount = new int[totalBusSchedule.TotalTimeInterval.Length];
+                for (int j = 0; j < totalBusSchedule.TotalTimeInterval.Length; j++)
+                {
+                    carCount[j] = (int)Math.Ceiling((double)totalBusSchedule.TotalTimeInterval[j] / (double)totalBusSchedule.TimeInteval[j][i]);
+                }
+                int count = carCount.Sum();
+                int index = 0;
+                int time = 0;
+
+                double[][] ints = new double[count][];
+                for (int j = 0; j < carCount.Length; j++)
+                {
+                    for (int k = 0; k < carCount[j]; k++)
+                    {
+                        ints[index] = new double[2 * (totalBusSchedule.AllStationName[i].Length - 1)]; // 始发终到站只有一次
+                        for (int l = 0; l < 2 * (totalBusSchedule.AllStationName[i].Length - 1); l++)
+                        {
+                            if (l == 0)
+                            {
+                                ints[index][l] = time + outputData.outputBusSchedules[j].FirstCar[i];
+
+                            }
+                            else if (l == 1)
+                            {
+                                ints[index][l] = ints[index][l - 1] + totalBusSchedule.AllStationRunning[i][^1]; // 要倒着算
+                            }
+                            else
+                            {
+                                if (l % 2 == 0)
+                                {
+                                    ints[index][l] = ints[index][l - 1] + totalBusSchedule.StopTime; // 出发
+                                }
+                                else
+                                {
+                                    int idx = totalBusSchedule.AllStationRunning[i].Length - 1 - (l / 2);
+                                    ints[index][l] = ints[index][l - 2] + totalBusSchedule.AllStationRunning[i][idx]; // 到达
+                                }
+                            }
+                        }
+                        index++;
+                    }
+                    time += totalBusSchedule.TotalTimeInterval[j];
+                }
+
+                RailTimetable[i] = ints;
+            }
+            // 第二个方向，和对应AllStationName站点顺序相同
+            else
+            {
+                RailStationName[i] = new string[totalBusSchedule.AllStationName[i - totalBusSchedule.AllStationName.Length].Length];
+                for (int j = 0; j < totalBusSchedule.AllStationName[i - totalBusSchedule.AllStationName.Length].Length; j++)
+                {
+                    RailStationName[i][j] = totalBusSchedule.AllStationName[i - totalBusSchedule.AllStationName.Length][j];
+                }
+
+                // 计算TimeTable的长度
+                int[] carCount = new int[totalBusSchedule.TotalTimeInterval.Length];
+                for (int j = 0; j < totalBusSchedule.TotalTimeInterval.Length; j++)
+                {
+                    carCount[j] = (int)Math.Ceiling((double)totalBusSchedule.TotalTimeInterval[j] / (double)totalBusSchedule.TimeInteval[j][i]);
+                }
+                int count = carCount.Sum();
+                int index = 0;
+                int time = 0;
+
+                double[][] ints = new double[count][];
+                for (int j = 0; j < carCount.Length; j++)
+                {
+                    for (int k = 0; k < carCount[j]; k++)
+                    {
+                        ints[index] = new double[2 * (totalBusSchedule.AllStationName[i - totalBusSchedule.AllStationName.Length].Length - 1)]; // 始发终到站只有一次
+                        for (int l = 0; l < 2 * (totalBusSchedule.AllStationName[i - totalBusSchedule.AllStationName.Length].Length - 1); l++)
+                        {
+                            if (l == 0)
+                            {
+                                ints[index][l] = time + outputData.outputBusSchedules[j].FirstCar[i];
+
+                            }
+                            else if (l == 1)
+                            {
+                                ints[index][l] = ints[index][l - 1] + totalBusSchedule.AllStationRunning[i - totalBusSchedule.AllStationName.Length][0]; // 要正着算
+                            }
+                            else
+                            {
+                                if (l % 2 == 0)
+                                {
+                                    ints[index][l] = ints[index][l - 1] + totalBusSchedule.StopTime; // 出发
+                                }
+                                else
+                                {
+                                    ints[index][l] = ints[index][l - 2] + totalBusSchedule.AllStationRunning[i - totalBusSchedule.AllStationName.Length][l / 2]; // 到达
+                                }
+                            }
+                        }
+                        index++;
+                    }
+                    time += totalBusSchedule.TotalTimeInterval[j];
+                }
+                RailTimetable[i] = ints;
+            }
+        }
     }
 }
