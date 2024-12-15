@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -19,84 +17,115 @@ import java.util.List;
 public class ClientJava {
     public static void main(String[] args) {
         try {
-            // set up the connection
-            @SuppressWarnings("deprecation")
+            // 第一次获取数据
+            String url1 = "http://129.211.26.167:80/api/my/receive";
+            String jsonInput1 = "\"1\"";
+            String response1 = sendPostRequest(url1, jsonInput1);
 
-            // the first time to get the data
-            URL url1 = new URL("http://129.211.26.167:80/api/my/receive");
-            HttpURLConnection conn1 = (HttpURLConnection) url1.openConnection();
-            conn1.setRequestMethod("POST");
-            conn1.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn1.setRequestProperty("Accept", "application/json");
-            conn1.setDoOutput(true);
-            String jsonInputString = "\"1\"";
+            if (response1 != null) {
+                System.out.println("Response from .NET API:");
+                System.out.println(response1);
 
-            try (OutputStream os = conn1.getOutputStream()) {
-                byte[] input1 = jsonInputString.getBytes(StandardCharsets.UTF_8);
-                os.write(input1, 0, input1.length);
-            }
+                // 解析 JSON 数据
+                ReceiveData receiveData = parseJson(response1);
 
-            // read the response
-            StringBuilder response1 = new StringBuilder();
-            try (BufferedReader br1 = new BufferedReader(
-                    new InputStreamReader(conn1.getInputStream(), StandardCharsets.UTF_8))) {
-                String responseLine1;
-                while ((responseLine1 = br1.readLine()) != null) {
-                    response1.append(responseLine1.trim());
-                }
-                System.out.println("Response from .NET API: ");
-                System.out.println(response1.toString());
-            }
+                if (receiveData != null && receiveData.interval != null) {
+                    for (int i = 0; i < receiveData.interval.length; i++) {
+                        // 构造 JSON 数据
+                        ScheduleInput scheduleInput = new ScheduleInput(toJson(receiveData.interval),
+                                Integer.toString(i));
+                        String jsonInput2 = toJson(scheduleInput);
 
-            // parse the response
-            ReceiveData receiveData = parseJson(response1.toString());
+                        String url2 = "http://129.211.26.167:80/api/my/process-step";
+                        String response2 = sendPostRequest(url2, jsonInput2);
 
-            // the second time to send the data
-            URL url2 = new URI("http://129.211.26.167:80/api/my/process").toURL();
-            HttpURLConnection conn2 = (HttpURLConnection) url2.openConnection();
-            conn2.setRequestMethod("POST");
-            conn2.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn2.setRequestProperty("Accept", "application/json");
-            conn2.setDoOutput(true);
+                        System.out.println("Server response: " + response2);
 
-            String jsonInputString2 = "\"" + toJson(receiveData.interval) + "\"";
-
-            try (OutputStream os = conn2.getOutputStream()) {
-                byte[] input2 = jsonInputString2.getBytes(StandardCharsets.UTF_8);
-                os.write(input2, 0, input2.length);
-            }
-
-            // read the response
-            try (BufferedReader br2 = new BufferedReader(
-                    new InputStreamReader(conn2.getInputStream(), StandardCharsets.UTF_8))) {
-                StringBuilder response2 = new StringBuilder();
-                String responseLine2;
-                while ((responseLine2 = br2.readLine()) != null) {
-                    response2.append(responseLine2.trim());
-                }
-                System.out.println("Response from .NET API: ");
-                System.out.println(response2.toString());
-
-                // 替换转义字符为实际换行符
-                String formattedJson = response2.toString().replace("\\r\\n", System.lineSeparator());
-
-                // 获取当前北京时间并格式化为 yyyy-MM-dd_HH-mm-ss
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                String currentTime = sdf.format(new Date());
-
-                // 定义输出文件名
-                String filePath = "output_" + currentTime + ".txt";
-
-                // 写入文件
-                try (FileWriter writer = new FileWriter(filePath)) {
-                    writer.write(formattedJson);
-                    System.out.println("JSON 已成功写入文件: " + filePath);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                        if (response2 != null && IsCode200(response2)) {
+                            // 替换转义字符并写入文件
+                            String formattedJson = response2.replace("\\r\\n", System.lineSeparator());
+                            writeToFile(formattedJson);
+                        }
+                    }
+                } else {
+                    System.err.println("Invalid or empty interval data received.");
                 }
             }
-        } catch (IOException | URISyntaxException e) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * 发送 POST 请求
+     */
+    private static String sendPostRequest(String urlString, String jsonInput) throws IOException {
+        @SuppressWarnings("deprecation")
+        URL url = new URL(urlString);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json; utf-8");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonInput.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+            StringBuilder response = new StringBuilder();
+            String responseLine;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+            return response.toString();
+        }
+    }
+
+    /**
+     * 写入 JSON 数据到文件
+     */
+    private static void writeToFile(String content) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+            String currentTime = sdf.format(new Date());
+            String filePath = "output_" + currentTime + ".txt";
+
+            try (FileWriter writer = new FileWriter(filePath)) {
+                writer.write(content);
+                System.out.println("JSON 已成功写入文件: " + filePath);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean IsCode200(String json) {
+        // 查找 "code": 的位置
+        int codeIndex = json.indexOf("\"code\":");
+
+        if (codeIndex == -1) {
+            // 如果找不到 "code"，返回 false
+            return false;
+        }
+
+        // 从 "code": 之后开始提取数字
+        int startIndex = codeIndex + 7; // 跳过 "code": 的长度
+        int endIndex = json.indexOf(',', startIndex);
+
+        if (endIndex == -1) {
+            // 如果没有逗号，尝试到字符串末尾
+            endIndex = json.indexOf('}', startIndex);
+        }
+
+        // 提取 code 值
+        String codeValue = json.substring(startIndex, endIndex).trim();
+
+        // 检查 code 是否等于 200
+        return "200".equals(codeValue);
     }
 
     public static String toJson(Object obj) {
@@ -239,11 +268,13 @@ public class ClientJava {
 class ScheduleInput {
 
     // 字段1：timeInterval，发车间隔数组，一个整数数组，取值范围为(0,最大时间范围)，表示每个时段的每条线路的发车间隔，例如第一个数据[0][0]=10表示第一个时段第一条线路的发车间隔为10分钟
-    public int[][] timeInterval;
+    public String SessionId; // 用于区分不同会话
+    public String Input; // 输入数据（JSON 格式的 int[][]）
 
     // 参考第一次访问返回的数据构造
-    public ScheduleInput(int[][] timeInterval) {
-        this.timeInterval = timeInterval;
+    public ScheduleInput(String input, String i) {
+        this.Input = input;
+        this.SessionId = i;
     }
 }
 

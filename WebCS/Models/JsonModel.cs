@@ -319,6 +319,11 @@ public class OutputBusSchedule
     public double ObjectiveValue { get; set; } // 目标函数值
     public int[] FirstCar { get; set; } // 第一辆车的发车时间
 
+    public OutputBusSchedule()
+    {
+
+    }
+
     public OutputBusSchedule(int modelStatus, double objectiveValue, int[] firstCar)
     {
         this.ModelStatus = modelStatus;
@@ -421,7 +426,7 @@ public class OutputJson
                         {
                             if (l == 0)
                             {
-                                ints[index][l] = time + outputData.outputBusSchedules[j].FirstCar[i];
+                                ints[index][l] = time + outputData.outputBusSchedules[j].FirstCar[i] + k * totalBusSchedule.TimeInteval[j][i];
 
                             }
                             else if (l == 1)
@@ -477,7 +482,7 @@ public class OutputJson
                         {
                             if (l == 0)
                             {
-                                ints[index][l] = time + outputData.outputBusSchedules[j].FirstCar[i];
+                                ints[index][l] = time + outputData.outputBusSchedules[j].FirstCar[i] + k * totalBusSchedule.TimeInteval[j][i];
 
                             }
                             else if (l == 1)
