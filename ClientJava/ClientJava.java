@@ -17,70 +17,79 @@ import java.util.List;
 public class ClientJava {
     public static void main(String[] args) {
         try {
-            String url1 = "http://129.211.26.167:80/api/my/receive";
+
+            // 第一次访问
+            // 发送一个任意的String类型的json数据，返回一个用于解释数据用法的json数据
             String jsonInput1 = "\"1\"";
-            String response1 = sendPostRequest(url1, jsonInput1);
+            String response1 = sendPostRequest1(jsonInput1);
 
-            if (response1 != null) {
-                System.out.println("Response from .NET API:");
-                System.out.println(response1);
+            // 输出第一次访问的返回数据
+            System.out.println("Response from .NET API:");
+            System.out.println(response1);
 
-                ReceiveData receiveData = parseJson(response1);
+            // 第二次访问
+            // 发送第一次访问返回的数据，返回一个taskId
+            // 请注意，如果需要修改算法的唯一输入，只需要修改该方法中的receiveData.interval发车间隔，关于这个数据的解释在response1中
+            String response2 = sendPostRequest2(response1);
+            System.out.println("Server response: " + response2); // taskId
 
-                if (receiveData != null && receiveData.interval != null) {
-                    String jsonInput2 = "\"" + toJson(receiveData.interval) + "\"";
-                    String url2 = "http://129.211.26.167:80/api/my/process-request";
-                    String response2 = sendPostRequest(url2, jsonInput2);
-                    System.out.println("Server response: " + response2); // taskId
-
-                    String taskId = extractTaskId(response2);
-
-                    // 轮询 GET 请求，直到任务完成
-                    String getUrl = "http://129.211.26.167:80/api/my/process-request?taskId=" + taskId;
-
-                    while (true) {
-                        String response = sendGetRequest(getUrl);
-
-                        if (response != null && isCode200(response)) {
-                            // 任务完成，处理结果
-                            System.out.println("Task completed: " + response);
-                            // 读取逻辑
-                            // 替换转义字符并写入文件
-                            String formattedJson = response.replace("\\r\\n", System.lineSeparator());
-                            // 提取 busScheduleResult 和 trainScheduleResult
-                            String busScheduleResult = extractJsonField(formattedJson, "busScheduleResult");
-                            String trainScheduleResult = extractJsonField(formattedJson, "trainScheduleResult");
-
-                            // 将 busScheduleResult 写入 bus_schedule.txt
-                            writeToFile("bus_schedule.txt", busScheduleResult);
-
-                            // 将 trainScheduleResult 写入 train_schedule.txt
-                            writeToFile("train_schedule.txt", trainScheduleResult);
-
-                            System.out.println("数据已写入到文件 bus_schedule.txt 和 train_schedule.txt");
-                            break; // 退出循环
-                        } else {
-                            // 任务仍在处理中，继续轮询
-                            System.out.println("Task still processing...");
-                            try {
-                                Thread.sleep(60000); // 等待 1 分钟后继续轮询
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
+            // 第三次访问
+            // 发送taskId，每隔一分钟轮询一次处理结果，返回处理结果，被写在当前目录下的schedule.json文件中
+            sendGetRequest1(response2);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * 发送 POST 请求
-     */
+    private static String sendPostRequest1(String jsonInput1) throws IOException {
+        String url1 = "http://129.211.26.167:80/api/my/receive";
+        String response1 = sendPostRequest(url1, jsonInput1);
+        return response1;
+    }
+    
+    private static String sendPostRequest2(String response1) throws IOException {
+        ReceiveData receiveData = parseJson(response1);
+        String jsonInput2 = "\"" + toJson(receiveData.interval) + "\"";
+        String url2 = "http://129.211.26.167:80/api/my/process-request";
+        String response2 = sendPostRequest(url2, jsonInput2);
+        return response2;
+    }
+
+    private static void sendGetRequest1(String response2) throws IOException {
+        String taskId = extractTaskId(response2);
+        // 轮询 GET 请求，直到任务完成
+        String getUrl = "http://129.211.26.167:80/api/my/process-request?taskId=" + taskId;
+        
+        while (true) {
+            String response = sendGetRequest(getUrl);
+            
+            if (response != null && isCode200(response)) {
+                // 任务完成，处理结果
+                System.out.println("Task completed");
+                // 读取逻辑
+                // 替换转义字符并写入文件
+                String formattedJson = response.replace("\\r\\n", System.lineSeparator());
+                
+                // 将 scheduleResult 写入 schedule
+                writeToFile("schedule.json", formattedJson);
+                
+                System.out.println("Write to file schedule.json");
+                break; // 退出循环
+            } else {
+                // 任务仍在处理中，继续轮询
+                System.out.println("Task still processing...");
+                try {
+                    Thread.sleep(60000); // 等待 1 分钟后继续轮询
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+    }
+
+    // 发送 POST 请求
     private static String sendPostRequest(String urlString, String jsonInput) throws IOException {
         @SuppressWarnings("deprecation")
         URL url = new URL(urlString);
@@ -106,7 +115,7 @@ public class ClientJava {
         }
     }
 
-    // 创建 HTTP 连接并发起 GET 请求
+    // 发送 GET 请求
     public static String sendGetRequest(String urlString) throws IOException {
         @SuppressWarnings("deprecation")
         URL url = new URL(urlString);
@@ -139,16 +148,7 @@ public class ClientJava {
         }
     }
 
-    public static String extractJsonField(String json, String fieldName) {
-        String fieldKey = "\"" + fieldName + "\":\"";
-        int startIndex = json.indexOf(fieldKey) + fieldKey.length();
-        int endIndex = json.indexOf("\"", startIndex);
-        return json.substring(startIndex, endIndex);
-    }
-
-    /**
-     * 写入 JSON 数据到文件
-     */
+    // 写入 JSON 数据到文件
     private static void writeToFile(String name, String content) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
@@ -190,7 +190,7 @@ public class ClientJava {
 
     public static boolean isCode200(String json) {
         // 查找 "code": 的位置
-        int codeIndex = json.indexOf("\"code\":");
+        int codeIndex = json.indexOf("\"Code\\\":");
 
         if (codeIndex == -1) {
             // 如果找不到 "code"，返回 false
@@ -198,7 +198,7 @@ public class ClientJava {
         }
 
         // 从 "code": 之后开始提取数字
-        int startIndex = codeIndex + 7; // 跳过 "code": 的长度
+        int startIndex = codeIndex + 8; // 跳过 "code": 的长度
         int endIndex = json.indexOf(',', startIndex);
 
         if (endIndex == -1) {
@@ -326,6 +326,34 @@ public class ClientJava {
                 responseData.lineName = lineNames;
             }
 
+            // 查找 "SectionName" 数组
+            int sectionNameIndex = json.indexOf("SectionName\\");
+            if (sectionNameIndex != -1) {
+                int start = json.indexOf("[", sectionNameIndex + 14) + 1; // 跳过 "SectionName": [
+                int end = json.indexOf("]", start);
+                String sectionNamesStr = json.substring(start, end);
+                String[] sectionNamesArray = sectionNamesStr.split("\",");
+                List<String> sectionNames = new ArrayList<>();
+                for (String sectionName : sectionNamesArray) {
+                    sectionNames.add(sectionName.replace("\\", "").replace(" ", "").replace("\"", ""));
+                }
+                responseData.sectionName = sectionNames;
+            }
+
+            // 查找 "Direction" 数组
+            int directionIndex = json.indexOf("Direction\\");
+            if (directionIndex != -1) {
+                int start = json.indexOf("[", directionIndex + 12) + 1; // 跳过 "Direction": [
+                int end = json.indexOf("]", start);
+                String directionsStr = json.substring(start, end);
+                String[] directionsArray = directionsStr.split("\",");
+                List<String> directions = new ArrayList<>();
+                for (String direction : directionsArray) {
+                    directions.add(direction.replace("\\", "").replace(" ", "").replace("\"", ""));
+                }
+                responseData.direction = directions;
+            }
+
             // 查找 "Interval" 二维数组
             int intervalIndex = json.indexOf("Interval\\");
             if (intervalIndex != -1) {
@@ -367,5 +395,7 @@ class ReceiveData {
     public String status;
     public String remark;
     public List<String> lineName;
+    public List<String> sectionName;
+    public List<String> direction;
     public int[][] interval;
 }

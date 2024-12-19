@@ -237,26 +237,38 @@ public class MyController : ControllerBase
         OutputJson outputJson = new(outputData, totalBusScheduleInstance, receiveDataInstance);
 
         // 转化为数据表的格式
-        DataTable dtBusSchedule = GetBusScheduleTable(outputJson);
+        DataTable dtBusSchedule = GetBusScheduleTable(outputJson, receiveDataInstance);
         DataTable dtTrainSchedule = GetTrainScheduleTable(outputJson, receiveDataInstance);
 
-        var busScheduleFilePath = Path.Combine(resultDirectory, taskId + "-BusSchedule" + ".txt");
-        var trainScheduleFilePath = Path.Combine(resultDirectory, taskId + "-TrainSchedule" + ".txt");
-
         // 保存数据表到文本文件
-        SaveDataTableToTxt(dtBusSchedule, busScheduleFilePath);
-        SaveDataTableToTxt(dtTrainSchedule, trainScheduleFilePath);
+        ReturnJson returnJson = new(200, "Completed", dtBusSchedule, dtTrainSchedule);
+
+        string json = JsonConvert.SerializeObject(returnJson, Formatting.Indented);
+
+        var scheduleFilePath = Path.Combine(resultDirectory, taskId + "-Schedule" + ".json");
+
+        try
+        {
+            System.IO.File.WriteAllText(scheduleFilePath, json);
+            Console.WriteLine($"Data has been written to {filePathInstance.Path}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
 
         // 记录日志
         _logger.LogInformation("Task {TaskId} completed.", taskId);
     }
 
-    private static DataTable GetBusScheduleTable(OutputJson outputJson)
+    private static DataTable GetBusScheduleTable(OutputJson outputJson, ReceiveData receiveData)
     {
         DataTable dt = new();
-        dt.Columns.Add("序号", typeof(int));       // 数据序号
-        dt.Columns.Add("线路", typeof(string));    // 线路名称
-        dt.Columns.Add("车次号", typeof(int));     // 时间段
+        dt.Columns.Add("序号", typeof(int));          // 数据序号
+        dt.Columns.Add("线路", typeof(string));       // 线路名称
+        dt.Columns.Add("运行区段", typeof(string));   // 区段名称
+        dt.Columns.Add("方向", typeof(string));       // 方向名称
+        dt.Columns.Add("车次号", typeof(int));        // 时间段
         dt.Columns.Add("始发站时间", typeof(string)); // 始发站时间
 
         int idx = 1;
@@ -269,6 +281,8 @@ public class MyController : ControllerBase
                 DataRow dr = dt.NewRow();
                 dr["序号"] = idx;
                 dr["线路"] = outputJson.BusLineName[i];
+                dr["运行区段"] = receiveData.SectionName[i + outputJson.RailStationName.Length];
+                dr["方向"] = receiveData.Direction[i + outputJson.RailStationName.Length];
                 dr["车次号"] = j + 1;
                 dr["始发站时间"] = ConvertToTimeString(outputJson.BusFirstCar[i][j]);
                 dt.Rows.Add(dr);
@@ -284,6 +298,8 @@ public class MyController : ControllerBase
         DataTable dt = new();
         dt.Columns.Add("序号", typeof(int));        // 数据序号
         dt.Columns.Add("线路", typeof(string));     // 线路名称
+        dt.Columns.Add("运行区段", typeof(string));   // 区段名称
+        dt.Columns.Add("方向", typeof(string));       // 方向名称
         dt.Columns.Add("车次号", typeof(int));      // 车次号
         dt.Columns.Add("车站", typeof(string));     // 车站
         dt.Columns.Add("车站编号", typeof(int));    // 车站编号
@@ -301,10 +317,12 @@ public class MyController : ControllerBase
                     DataRow dr = dt.NewRow();
                     dr["序号"] = idx;
                     dr["线路"] = receiveData.LineName[i];
+                    dr["运行区段"] = receiveData.SectionName[i];
+                    dr["方向"] = receiveData.Direction[i];
                     dr["车次号"] = j + 1;
                     dr["车站"] = outputJson.RailStationName[i][k];
                     dr["车站编号"] = k + 1;
-                    
+
                     // 计算到发时间
                     if (k == 0)
                     {
@@ -329,23 +347,6 @@ public class MyController : ControllerBase
         }
 
         return dt;
-    }
-
-    public static void SaveDataTableToTxt(DataTable dt, string filePath)
-    {
-        using (StreamWriter writer = new StreamWriter(filePath))
-        {
-            // 写入列标题（列名）
-            string columnHeaders = string.Join(",", dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName));
-            writer.WriteLine(columnHeaders);
-
-            // 写入每一行数据
-            foreach (DataRow row in dt.Rows)
-            {
-                string rowData = string.Join(",", row.ItemArray.Select(item => item.ToString()));
-                writer.WriteLine(rowData);
-            }
-        }
     }
 
     private static string ConvertToTimeString(double timeValue)
@@ -387,18 +388,17 @@ public class MyController : ControllerBase
         }
 
         // 查询任务执行状态
-        var busScheduleFilePath = Path.Combine(resultDirectory, taskId + "-BusSchedule" + ".txt");
-        var trainScheduleFilePath = Path.Combine(resultDirectory, taskId + "-TrainSchedule" + ".txt");
+        var scheduleFilePath = Path.Combine(resultDirectory, taskId + "-Schedule" + ".json");
 
-        if (System.IO.File.Exists(busScheduleFilePath) && System.IO.File.Exists(trainScheduleFilePath))
+        if (System.IO.File.Exists(scheduleFilePath))
         {
-            var busScheduleResult = System.IO.File.ReadAllText(busScheduleFilePath);
-            var trainScheduleResult = System.IO.File.ReadAllText(trainScheduleFilePath);
-            return Ok(new { Code = 200, Status = "Completed", BusScheduleResult = busScheduleResult, TrainScheduleResult = trainScheduleResult });
+            var scheduleResult = System.IO.File.ReadAllText(scheduleFilePath);
+            return Ok(scheduleResult);
         }
         else
         {
-            return Ok(new { Code = 100, Status = "Processing" });
+            string json = JsonConvert.SerializeObject(new ReturnJson(100, "Processing"), Formatting.Indented);
+            return Ok(json);
         }
     }
 
@@ -500,5 +500,33 @@ public class ProcessingState
         // 初始化 TotalBusSchedule 和 ReceiveData
         FilePath filePath = new();
         (FilePathInstance, ReceiveDataInstance, TotalBusScheduleInstance) = MyController.ReadJson(filePath.Path);
+    }
+}
+
+public class ReturnJson
+{
+    public int Code { get; set; }
+    public string Status { get; set; }
+
+    public DataTable DtBusSchedule { get; set; }
+
+    public DataTable DtTrainSchedule { get; set; }
+
+    public ReturnJson()
+    {
+    }
+
+    public ReturnJson(int code, string status, DataTable dtBusSchedule, DataTable dtTrainSchedule)
+    {
+        Code = code;
+        Status = status;
+        DtBusSchedule = dtBusSchedule;
+        DtTrainSchedule = dtTrainSchedule;
+    }
+
+    public ReturnJson(int code, string status)
+    {
+        Code = code;
+        Status = status;
     }
 }
