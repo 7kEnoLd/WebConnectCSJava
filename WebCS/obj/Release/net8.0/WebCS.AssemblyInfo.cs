@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WebCS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+baf3411cb48564dae6b6ab4dd81a64346f73cadc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+340f3a2ec6fecbb4845a7ee324799427b242968d")]
 [assembly: System.Reflection.AssemblyProductAttribute("WebCS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WebCS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

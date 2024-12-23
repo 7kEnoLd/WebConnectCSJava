@@ -264,12 +264,12 @@ public class MyController : ControllerBase
     private static DataTable GetBusScheduleTable(OutputJson outputJson, ReceiveData receiveData)
     {
         DataTable dt = new();
-        dt.Columns.Add("序号", typeof(int));          // 数据序号
-        dt.Columns.Add("线路", typeof(string));       // 线路名称
-        dt.Columns.Add("运行区段", typeof(string));   // 区段名称
-        dt.Columns.Add("方向", typeof(string));       // 方向名称
-        dt.Columns.Add("车次号", typeof(int));        // 时间段
-        dt.Columns.Add("始发站时间", typeof(string)); // 始发站时间
+        dt.Columns.Add("serialNumber", typeof(int));          // 数据序号
+        dt.Columns.Add("lineName", typeof(string));           // 线路名称
+        dt.Columns.Add("routeSegment", typeof(string));       // 区段名称
+        dt.Columns.Add("direction", typeof(string));          // 方向名称
+        dt.Columns.Add("trainNumber", typeof(int));           // 列车编号
+        dt.Columns.Add("departureStationTime", typeof(string)); // 始发站时间
 
         int idx = 1;
         // 添加数据行
@@ -279,12 +279,12 @@ public class MyController : ControllerBase
             for (int j = 0; j < outputJson.BusFirstCar[i].Length; j++)
             {
                 DataRow dr = dt.NewRow();
-                dr["序号"] = idx;
-                dr["线路"] = outputJson.BusLineName[i];
-                dr["运行区段"] = receiveData.SectionName[i + outputJson.RailStationName.Length];
-                dr["方向"] = receiveData.Direction[i + outputJson.RailStationName.Length];
-                dr["车次号"] = j + 1;
-                dr["始发站时间"] = ConvertToTimeString(outputJson.BusFirstCar[i][j]);
+                dr["serialNumber"] = idx;
+                dr["lineName"] = outputJson.BusLineName[i];
+                dr["routeSegment"] = receiveData.SectionName[i + outputJson.RailStationName.Length];
+                dr["direction"] = receiveData.Direction[i + outputJson.RailStationName.Length];
+                dr["trainNumber"] = j + 1;
+                dr["departureStationTime"] = ConvertToTimeString(outputJson.BusFirstCar[i][j]);
                 dt.Rows.Add(dr);
                 idx++;
             }
@@ -296,15 +296,16 @@ public class MyController : ControllerBase
     private static DataTable GetTrainScheduleTable(OutputJson outputJson, ReceiveData receiveData)
     {
         DataTable dt = new();
-        dt.Columns.Add("序号", typeof(int));        // 数据序号
-        dt.Columns.Add("线路", typeof(string));     // 线路名称
-        dt.Columns.Add("运行区段", typeof(string));   // 区段名称
-        dt.Columns.Add("方向", typeof(string));       // 方向名称
-        dt.Columns.Add("车次号", typeof(int));      // 车次号
-        dt.Columns.Add("车站", typeof(string));     // 车站
-        dt.Columns.Add("车站编号", typeof(int));    // 车站编号
-        dt.Columns.Add("到站时间", typeof(string)); // 到站时间
-        dt.Columns.Add("发车时间", typeof(string)); // 发车时间
+        dt.Columns.Add("serialNumber", typeof(int));         // 数据序号
+        dt.Columns.Add("lineName", typeof(string));          // 线路名称
+        dt.Columns.Add("routeSegment", typeof(string));      // 区段名称
+        dt.Columns.Add("direction", typeof(string));         // 方向名称
+        dt.Columns.Add("trainNumber", typeof(int));          // 车次号
+        dt.Columns.Add("stationName", typeof(string));       // 车站
+        dt.Columns.Add("stationId", typeof(int));            // 车站编号
+        dt.Columns.Add("arrivalTime", typeof(string));       // 到站时间
+        dt.Columns.Add("departureTime", typeof(string));     // 发车时间
+
 
         int idx = 1;
         // 添加数据行
@@ -315,29 +316,29 @@ public class MyController : ControllerBase
                 for (int k = 0; k < outputJson.RailStationName[i].Length; k++)  // 车站
                 {
                     DataRow dr = dt.NewRow();
-                    dr["序号"] = idx;
-                    dr["线路"] = receiveData.LineName[i];
-                    dr["运行区段"] = receiveData.SectionName[i];
-                    dr["方向"] = receiveData.Direction[i];
-                    dr["车次号"] = j + 1;
-                    dr["车站"] = outputJson.RailStationName[i][k];
-                    dr["车站编号"] = k + 1;
+                    dr["serialNumber"] = idx;
+                    dr["lineName"] = receiveData.LineName[i];
+                    dr["routeSegment"] = receiveData.SectionName[i];
+                    dr["direction"] = receiveData.Direction[i];
+                    dr["trainNumber"] = j + 1;
+                    dr["stationName"] = outputJson.RailStationName[i][k];
+                    dr["stationId"] = k + 1;
 
                     // 计算到发时间
                     if (k == 0)
                     {
-                        dr["到站时间"] = " ";
-                        dr["发车时间"] = ConvertToTimeString(outputJson.RailTimetable[i][j][k]);
+                        dr["arrivalTime"] = " ";
+                        dr["departureTime"] = ConvertToTimeString(outputJson.RailTimetable[i][j][k]);
                     }
                     else if (k == outputJson.RailStationName[i].Length - 1)
                     {
-                        dr["到站时间"] = ConvertToTimeString(outputJson.RailTimetable[i][j][2 * (outputJson.RailStationName[i].Length - 1) - 1]);
-                        dr["发车时间"] = " ";
+                        dr["arrivalTime"] = ConvertToTimeString(outputJson.RailTimetable[i][j][2 * (outputJson.RailStationName[i].Length - 1) - 1]);
+                        dr["departureTime"] = " ";
                     }
                     else
                     {
-                        dr["到站时间"] = ConvertToTimeString(outputJson.RailTimetable[i][j][2 * k - 1]);
-                        dr["发车时间"] = ConvertToTimeString(outputJson.RailTimetable[i][j][2 * k]);
+                        dr["arrivalTime"] = ConvertToTimeString(outputJson.RailTimetable[i][j][2 * k - 1]);
+                        dr["departureTime"] = ConvertToTimeString(outputJson.RailTimetable[i][j][2 * k]);
                     }
 
                     dt.Rows.Add(dr);
