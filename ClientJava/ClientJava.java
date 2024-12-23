@@ -36,7 +36,7 @@ public class ClientJava {
             // 第三次访问
             // 发送taskId，每隔一分钟轮询一次处理结果，返回处理结果，被写在当前目录下的schedule.json文件中
             sendGetRequest1(response2);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,7 +47,7 @@ public class ClientJava {
         String response1 = sendPostRequest(url1, jsonInput1);
         return response1;
     }
-    
+
     private static String sendPostRequest2(String response1) throws IOException {
         ReceiveData receiveData = parseJson(response1);
         String jsonInput2 = "\"" + toJson(receiveData.interval) + "\"";
@@ -60,20 +60,20 @@ public class ClientJava {
         String taskId = extractTaskId(response2);
         // 轮询 GET 请求，直到任务完成
         String getUrl = "http://129.211.26.167:80/api/my/process-request?taskId=" + taskId;
-        
+
         while (true) {
             String response = sendGetRequest(getUrl);
-            
+
             if (response != null && isCode200(response)) {
                 // 任务完成，处理结果
                 System.out.println("Task completed");
                 // 读取逻辑
                 // 替换转义字符并写入文件
                 String formattedJson = response.replace("\\r\\n", System.lineSeparator());
-                
+
                 // 将 scheduleResult 写入 schedule
                 writeToFile("schedule.json", formattedJson);
-                
+
                 System.out.println("Write to file schedule.json");
                 break; // 退出循环
             } else {
@@ -190,7 +190,7 @@ public class ClientJava {
 
     public static boolean isCode200(String json) {
         // 查找 "code": 的位置
-        int codeIndex = json.indexOf("\"Code\\\":");
+        int codeIndex = json.indexOf("\"code\\\":");
 
         if (codeIndex == -1) {
             // 如果找不到 "code"，返回 false
@@ -295,7 +295,7 @@ public class ClientJava {
             json = json.substring(1, json.length() - 1); // 去掉两边的花括号
 
             // 查找 "Status" 字段
-            int statusIndex = json.indexOf("Status\\");
+            int statusIndex = json.indexOf("status\\");
             if (statusIndex != -1) {
                 int start = json.indexOf("\"", statusIndex + 9) + 1; // 跳过 "Status": 字符串
                 int end = json.indexOf("\\", start);
@@ -304,7 +304,7 @@ public class ClientJava {
             }
 
             // 查找 "Remark" 字段
-            int remarkIndex = json.indexOf("Remark\\");
+            int remarkIndex = json.indexOf("remark\\");
             if (remarkIndex != -1) {
                 int start = json.indexOf("\"", remarkIndex + 9) + 1; // 跳过 "Remark": 字符串
                 int end = json.indexOf("\\", start);
@@ -313,7 +313,7 @@ public class ClientJava {
             }
 
             // 查找 "LineName" 数组
-            int lineNameIndex = json.indexOf("LineName\\");
+            int lineNameIndex = json.indexOf("lineName\\");
             if (lineNameIndex != -1) {
                 int start = json.indexOf("[", lineNameIndex + 11) + 1; // 跳过 "LineName": [
                 int end = json.indexOf("]", start);
@@ -326,8 +326,22 @@ public class ClientJava {
                 responseData.lineName = lineNames;
             }
 
+            // 查找 "Period" 数组
+            int periodIndex = json.indexOf("period\\");
+            if (periodIndex != -1) {
+                int start = json.indexOf("[", periodIndex + 9) + 1; // 跳过 "LineName": [
+                int end = json.indexOf("]", start);
+                String periodsStr = json.substring(start, end);
+                String[] periodsArray = periodsStr.split("\",");
+                List<String> periods = new ArrayList<>();
+                for (String period : periodsArray) {
+                    periods.add(period.replace("\\", "").replace(" ", "").replace("\"", ""));
+                }
+                responseData.period = periods;
+            }
+
             // 查找 "SectionName" 数组
-            int sectionNameIndex = json.indexOf("SectionName\\");
+            int sectionNameIndex = json.indexOf("sectionName\\");
             if (sectionNameIndex != -1) {
                 int start = json.indexOf("[", sectionNameIndex + 14) + 1; // 跳过 "SectionName": [
                 int end = json.indexOf("]", start);
@@ -341,7 +355,7 @@ public class ClientJava {
             }
 
             // 查找 "Direction" 数组
-            int directionIndex = json.indexOf("Direction\\");
+            int directionIndex = json.indexOf("direction\\");
             if (directionIndex != -1) {
                 int start = json.indexOf("[", directionIndex + 12) + 1; // 跳过 "Direction": [
                 int end = json.indexOf("]", start);
@@ -355,7 +369,7 @@ public class ClientJava {
             }
 
             // 查找 "Interval" 二维数组
-            int intervalIndex = json.indexOf("Interval\\");
+            int intervalIndex = json.indexOf("interval\\");
             if (intervalIndex != -1) {
                 int start = json.indexOf("[", intervalIndex + 11) + 1; // 跳过 "Interval": [
                 int end = json.lastIndexOf("]"); // 获取最后一个 "]" 作为结束位置
@@ -395,6 +409,7 @@ class ReceiveData {
     public String status;
     public String remark;
     public List<String> lineName;
+    public List<String> period;
     public List<String> sectionName;
     public List<String> direction;
     public int[][] interval;

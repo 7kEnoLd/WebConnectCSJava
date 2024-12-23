@@ -7,25 +7,27 @@ public class GeneralData
 
 public class ReceiveData
 {
-    public string Status { get; set; } // 数据状态
-    public string Remark { get; set; } // 数据结构解释
-    public string[] LineName { get; set; } // 线路名称
-    public string[] SectionName { get; set; } // 运行区段名称
-    public string[] Direction { get; set; } // 方向名称
-    public int[][] Interval { get; set; } // 线路在各个时段上的发车间隔
+    public string status { get; set; } // 数据状态
+    public string remark { get; set; } // 数据结构解释
+    public string[] lineName { get; set; } // 线路名称
+    public string[] period { get; set; } // 时段名称
+    public string[] sectionName { get; set; } // 运行区段名称
+    public string[] direction { get; set; } // 方向名称
+    public int[][] interval { get; set; } // 线路在各个时段上的发车间隔
 
     public ReceiveData()
     {
-            Status = "Success";
-            Remark = "处理的输入数据格式是一个int[][]，表示每条线路在每个时段的发车间隔，4*15的大小，其中1代表线路编号按照下面的LineName属性组织，4代表时段数量，第一个时段是早高峰,6:30-10:30，后面时段依次为10:30-17:00，17:00-20:30，20:30-24:00";
-            LineName = [ "智轨T1主线", "智轨T1支线", "智轨T4主线", "智轨T4支线",
+        status = "Success";
+        remark = "处理的输入数据格式是一个int[][]，表示每条线路在每个时段的发车间隔，4*15的大小，其中15代表线路编号按照下面的LineName属性组织，4代表时段数量按照Period属性组织，第一个时段是早高峰,6:30-10:30，后面时段依次为10:30-17:00，17:00-20:30，20:30-24:00";
+        lineName = [ "智轨T1主线", "智轨T1支线", "智轨T4主线", "智轨T4支线",
                     "智轨T1主线", "智轨T1支线", "智轨T4主线", "智轨T4支线",
                     "9路", "15路", "24路", "32路",
                     "南溪9路", "南溪10路", "南溪12路" ];
-            SectionName = ["智轨产业园站-高铁西站", "高铁西站-成都工业学院站", "南溪区政府-智轨产业园站", "智轨产业园站-南溪区政府", "高铁西站-智轨产业园站", "成都工业学院站-高铁西站", "智轨产业园站-南溪区政府", "南溪区政府-智轨产业园站",
+        period = ["6:30-10:30", "10:30-17:00", "17:00-20:30", "20:30-24:00"];
+        sectionName = ["智轨产业园站-高铁西站", "高铁西站-成都工业学院站", "南溪区政府-智轨产业园站", "智轨产业园站-南溪区政府", "高铁西站-智轨产业园站", "成都工业学院站-高铁西站", "智轨产业园站-南溪区政府", "南溪区政府-智轨产业园站",
                             "翠屏山-盐坪坝", "丽雅大院-翠屏山(市妇幼保健院)", "东山路-市政广场(云上装饰)", "纵一路口-宜宾七中", "新中医院西门-东门", "客运中心-月亮湾游客中心", "祥和小区-客运中心"];
-            Direction = ["上行", "上行", "上行", "上行", "下行", "下行", "下行", "下行", "上行", "上行", "上行", "上行", "上行", "上行", "上行"];
-            Interval = [[10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29], [10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29]];
+        direction = ["上行", "上行", "上行", "上行", "下行", "下行", "下行", "下行", "上行", "上行", "上行", "上行", "上行", "上行", "上行"];
+        interval = [[10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29], [10, 10, 15, 25, 10, 10, 15, 25, 20, 11, 15, 10, 14, 17, 24], [15, 15, 20, 30, 15, 15, 20, 30, 25, 16, 20, 15, 19, 22, 29]];
     }
 }
 
@@ -371,7 +373,7 @@ public class OutputJson
         BusLineName = new string[totalBusSchedule.TimeInteval[0].Length - totalBusSchedule.AllStationName.Length * 2]; // 要计算上下行两个方向
         for (int i = 0; i < BusLineName.Length; i++)
         {
-            BusLineName[i] = receiveData.LineName[totalBusSchedule.AllStationName.Length * 2 + i];
+            BusLineName[i] = receiveData.lineName[totalBusSchedule.AllStationName.Length * 2 + i];
         }
         BusFirstCar = new int[BusLineName.Length][];
         for (int i = 0; i < BusLineName.Length; i++)

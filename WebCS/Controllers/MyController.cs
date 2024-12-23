@@ -281,8 +281,8 @@ public class MyController : ControllerBase
                 DataRow dr = dt.NewRow();
                 dr["serialNumber"] = idx;
                 dr["lineName"] = outputJson.BusLineName[i];
-                dr["routeSegment"] = receiveData.SectionName[i + outputJson.RailStationName.Length];
-                dr["direction"] = receiveData.Direction[i + outputJson.RailStationName.Length];
+                dr["routeSegment"] = receiveData.sectionName[i + outputJson.RailStationName.Length];
+                dr["direction"] = receiveData.direction[i + outputJson.RailStationName.Length];
                 dr["trainNumber"] = j + 1;
                 dr["departureStationTime"] = ConvertToTimeString(outputJson.BusFirstCar[i][j]);
                 dt.Rows.Add(dr);
@@ -317,9 +317,9 @@ public class MyController : ControllerBase
                 {
                     DataRow dr = dt.NewRow();
                     dr["serialNumber"] = idx;
-                    dr["lineName"] = receiveData.LineName[i];
-                    dr["routeSegment"] = receiveData.SectionName[i];
-                    dr["direction"] = receiveData.Direction[i];
+                    dr["lineName"] = receiveData.lineName[i];
+                    dr["routeSegment"] = receiveData.sectionName[i];
+                    dr["direction"] = receiveData.direction[i];
                     dr["trainNumber"] = j + 1;
                     dr["stationName"] = outputJson.RailStationName[i][k];
                     dr["stationId"] = k + 1;
@@ -506,12 +506,12 @@ public class ProcessingState
 
 public class ReturnJson
 {
-    public int Code { get; set; }
-    public string Status { get; set; }
+    public int code { get; set; }
+    public string status { get; set; }
 
-    public DataTable DtBusSchedule { get; set; }
+    public DataTable dtBusSchedule { get; set; }
 
-    public DataTable DtTrainSchedule { get; set; }
+    public DataTable dtTrainSchedule { get; set; }
 
     public ReturnJson()
     {
@@ -519,15 +519,15 @@ public class ReturnJson
 
     public ReturnJson(int code, string status, DataTable dtBusSchedule, DataTable dtTrainSchedule)
     {
-        Code = code;
-        Status = status;
-        DtBusSchedule = dtBusSchedule;
-        DtTrainSchedule = dtTrainSchedule;
+        this.code = code;
+        this.status = status;
+        this.dtBusSchedule = dtBusSchedule;
+        this.dtTrainSchedule = dtTrainSchedule;
     }
 
     public ReturnJson(int code, string status)
     {
-        Code = code;
-        Status = status;
+        this.code = code;
+        this.status = status;
     }
 }
