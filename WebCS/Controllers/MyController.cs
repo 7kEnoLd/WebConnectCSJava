@@ -231,6 +231,7 @@ public class MyController : ControllerBase
             busSchedule.BuildBusSchedule(intervalArray[i], i, totalBusScheduleInstance, lastCar);
             busScheduleList.Add(busSchedule);
             OutputBusSchedule result = BusScheduleOptimization.OptimizationOrtools(busScheduleList[i]);
+            _logger.LogInformation("ok, obj = {i}", result.ObjectiveValue);
             outputData.outputBusSchedules.Add(result);
         }
 

@@ -16,31 +16,82 @@ import java.util.List;
 
 public class ClientJava {
     public static void main(String[] args) {
-        try {
+    try {
 
-            // 第一次访问
-            // 发送一个任意的String类型的json数据，返回一个用于解释数据用法的json数据
-            String jsonInput1 = "\"1\"";
-            String response1 = sendPostRequest1(jsonInput1);
+    // 第一次访问
+    // 发送一个任意的String类型的json数据，返回一个用于解释数据用法的json数据
+    String jsonInput1 = "\"1\"";
+    String response1 = sendPostRequest1(jsonInput1);
 
-            // 输出第一次访问的返回数据
-            System.out.println("Response from .NET API:");
-            System.out.println(response1);
+    // 输出第一次访问的返回数据
+    System.out.println("Response from .NET API:");
+    System.out.println(response1);
 
-            // 第二次访问
-            // 发送第一次访问返回的数据，返回一个taskId
-            // 请注意，如果需要修改算法的唯一输入，只需要修改该方法中的receiveData.interval发车间隔，关于这个数据的解释在response1中
-            String response2 = sendPostRequest2(response1);
-            System.out.println("Server response: " + response2); // taskId
+    // 第二次访问
+    // 发送第一次访问返回的数据，返回一个taskId
+    // 请注意，如果需要修改算法的唯一输入，只需要修改该方法中的receiveData.interval发车间隔，关于这个数据的解释在response1中
+    String response2 = sendPostRequest2(response1);
+    System.out.println("Server response: " + response2); // taskId
 
-            // 第三次访问
-            // 发送taskId，每隔一分钟轮询一次处理结果，返回处理结果，被写在当前目录下的schedule.json文件中
-            sendGetRequest1(response2);
+    // 第三次访问
+    // 发送taskId，每隔一分钟轮询一次处理结果，返回处理结果，被写在当前目录下的schedule.json文件中
+    sendGetRequest1(response2);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    } catch (Exception e) {
+    e.printStackTrace();
     }
+    }
+
+    // public static void main(String[] args) {
+    //     int threadCount = 3; // 定义线程数量
+    //     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+
+    //     for (int i = 0; i < threadCount; i++) {
+    //         int threadId = i + 1;
+    //         executorService.execute(() -> {
+    //             try {
+    //                 post(threadId);
+    //             } catch (Exception e) {
+    //                 System.err.println("线程 " + threadId + " 发生错误: " + e.getMessage());
+    //                 e.printStackTrace();
+    //             }
+    //         });
+    //     }
+
+    //     executorService.shutdown();
+    // }
+
+    // // 每个线程的任务逻辑
+    // private static void post(int threadId) throws Exception {
+    //     System.out.println("线程 " + threadId + " 开始执行");
+
+    //     try {
+
+    //         // 第一次访问
+    //         // 发送一个任意的String类型的json数据，返回一个用于解释数据用法的json数据
+    //         String jsonInput1 = "\"1\"";
+    //         String response1 = sendPostRequest1(jsonInput1);
+
+    //         // 输出第一次访问的返回数据
+    //         System.out.println("Response from .NET API:");
+    //         System.out.println(response1);
+
+    //         // 第二次访问
+    //         // 发送第一次访问返回的数据，返回一个taskId
+    //         // 请注意，如果需要修改算法的唯一输入，只需要修改该方法中的receiveData.interval发车间隔，关于这个数据的解释在response1中
+    //         String response2 = sendPostRequest2(response1);
+    //         System.out.println("Server response: " + response2); // taskId
+
+    //         // 第三次访问
+    //         // 发送taskId，每隔一分钟轮询一次处理结果，返回处理结果，被写在当前目录下的schedule.json文件中
+    //         sendGetRequest1(response2);
+
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+
+    //     System.out.println("线程 " + threadId + " 完成任务");
+    // }
 
     private static String sendPostRequest1(String jsonInput1) throws IOException {
         String url1 = "http://129.211.26.167:80/api/my/receive";
